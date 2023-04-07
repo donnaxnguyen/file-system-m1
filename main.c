@@ -14,6 +14,19 @@ typedef struct Entry {
     time_t lastModified;
 } Entry; 
 
+// creating volume control block struct 
+typedef struct VolumeControlBlock { 
+    int totalBlocks; 
+    int blockSize; 
+    int startFreeSpace; 
+} VolumeControlBlock;
+
+// creating free space struct 
+typedef struct FreeSpace { 
+    int blockNumber; 
+    struct FreeSpace* next;
+} FreeSpace;
+
 int main() {
     int entrySize = sizeof(Entry); //size of our Entry struct
     int entries = 60; //from what prof used as an example 
@@ -34,9 +47,9 @@ int main() {
         strcpy(directory[i].filename, "hi");
         directory[i].size = 0; 
         directory[i].blockLocation = 0; 
-        directory[i].dateCreated = time(null); 
-        directory[i].lastAccessed = time(null); 
-        directory[i].lastModified = time(null);
+        directory[i].dateCreated = time(NULL); 
+        directory[i].lastAccessed = time(NULL); 
+        directory[i].lastModified = time(NULL);
     }
 
     /* 
