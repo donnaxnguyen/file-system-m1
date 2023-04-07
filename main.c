@@ -3,7 +3,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define BLOCK_SIZE 512;
+#define BLOCK_SIZE 512
+#define MAGIC_NUM 0x12345678
 
 typedef struct Entry {
     char filename[256]; 
@@ -16,9 +17,11 @@ typedef struct Entry {
 
 // creating volume control block struct 
 typedef struct VolumeControlBlock { 
+    int magicNum;
     int totalBlocks; 
     int blockSize; 
-    int startFreeSpace; 
+    int free_blocks; 
+    int root_directory;
 } VolumeControlBlock;
 
 // creating free space struct 
@@ -26,6 +29,39 @@ typedef struct FreeSpace {
     int blockNumber; 
     struct FreeSpace* next;
 } FreeSpace;
+
+// setting global variable delcarations 
+VolumeControlBlock vcb; // using to store info about the VCB's
+FreeSpace* getFreeSpace = NULL; // using to store info about free blocks.. setting to null bc list is empty.
+
+// initializing values in the vcb
+void initializeVCB() {
+    vcb.magicNum = MAGIC_NUM; 
+    vcb.totalBlocks = 10000; // random number of total blocks
+    vcb.blockSize = BLOCK_SIZE; 
+    vcb.free_blocks = 3; // random number of free space starting at block 3
+    vcb.root_directory = 33; // root directory starts from block 33
+}
+
+// initializing free space 
+
+// initialize root directory 
+
+
+// initializing file system 
+void initFileSystem() {
+    // malloc a block of memory 
+    
+    // look at the magic number 
+
+    // if magic number matches, copy to vcb 
+
+    // if doesnt match, format the volume
+
+}
+
+// allocation of free space 
+
 
 int main() {
     int entrySize = sizeof(Entry); //size of our Entry struct
