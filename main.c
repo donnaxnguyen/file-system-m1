@@ -45,19 +45,37 @@ void initializeVCB() {
 
 // initializing free space 
 
+
+
+
+
 // initialize root directory 
 
 
 // initializing file system 
 void initFileSystem() {
     // malloc a block of memory 
-    
+    VolumeControlBlock *vcb;
+    vcb = (struct VolumeControlBlock*) malloc(sizeof(BLOCK_SIZE));
+    if(vcb == NULL){
+        printf("Error in mallocing initfilesystem \n");
+        return -1;//not sure if needed error
+    }
+    //reading the first block
+    int storeread = LBAread(vcb, 1, 0);
+
     // look at the magic number 
-
+    if(vcb->magicNum == MAGIC_NUM){//initialized already
+        
     // if magic number matches, copy to vcb 
-
+    
+    }else{
     // if doesnt match, format the volume
+    initializeVCB();
+    }
+    
 
+   
 }
 
 // allocation of free space 
