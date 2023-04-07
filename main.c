@@ -2,6 +2,7 @@
 #include <time.h>
 #include <string.h>
 #include <stdlib.h>
+#include <memory.h>
 
 #define BLOCK_SIZE 512
 #define MAGIC_NUM 0x12345678
@@ -44,7 +45,22 @@ void initializeVCB() {
 }
 
 // initializing free space 
+void initializeFreeSpace(){
+    //assuming we are using a bitmap
+    //assuming the default size will have 19531 blocks,
+    //so we need 19531 bits or 2442 bytes or 5 blocks
+    
+    char *free_space_pointer;
+    //this holds 2560 bytes
+    free_space_pointer = malloc(BLOCK_SIZE * 5);
+    //set first 6 bits to used/1 and mark the rest as free/0
+    
+    //This is wrong?... might need to create new struct for bitmap,
+    //along with helper functions to set everything
+    //memset(free_space_pointer, '1', 6);   
+    //printf("After bit change: %d \n", free_space_pointer);
 
+}
 
 
 
@@ -59,10 +75,10 @@ void initFileSystem() {
     vcb = (struct VolumeControlBlock*) malloc(sizeof(BLOCK_SIZE));
     if(vcb == NULL){
         printf("Error in mallocing initfilesystem \n");
-        return -1;//not sure if needed error
+       //error
     }
     //reading the first block
-    int storeread = LBAread(vcb, 1, 0);
+    //int storeread = LBAread(vcb, 1, 0);brings an error?
 
     // look at the magic number 
     if(vcb->magicNum == MAGIC_NUM){//initialized already
@@ -72,6 +88,7 @@ void initFileSystem() {
     }else{
     // if doesnt match, format the volume
     initializeVCB();
+    initializeFreeSpace();
     }
     
 
@@ -109,7 +126,7 @@ int main() {
     /* 
         Things left to do 
         - ask free space for remaining .75 blocks? or extra 1 block? 
-
+        
         - set the first entry to "." directory
         - set the second entry to ".." directory 
 
@@ -117,7 +134,7 @@ int main() {
 
         - return starting block number of the root directory (this is what we get when we ask free space for the blocks?)
     */
-    
+    initFileSystem();
 
 
 }
