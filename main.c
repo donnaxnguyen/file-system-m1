@@ -73,11 +73,9 @@ void initializeFreeSpace(){
     // if not, then add to the end of the linked list
     if (free_space_node == NULL) {
         free_space_node = new_block;
-    }
-        else {
+    } else {
             (*current).next = new_block;
-        }
-
+            }
 
     // update current node
     current = new_block;
