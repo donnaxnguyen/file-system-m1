@@ -146,7 +146,6 @@ int main() {
 
     /* 
         Things left to do 
-        - ask free space for remaining .75 blocks? or extra 1 block? 
         
         - set the first entry to "." directory
         - set the second entry to ".." directory 
@@ -157,5 +156,20 @@ int main() {
     */
     initFileSystem();
 
+    //initialize first directory entry to "."
+    strcpy(directory[0].filename, ".");
+    directory[0].size = directorySize; 
+    directory[0].blockLocation = 0; 
+    directory[0].dateCreated = time(NULL);
+    directory[0].lastAccessed = time(NULL);
+    directory[0].lastModified = time(NULL);
+
+    //initialize second directory entry to ".."
+    strcpy(directory[1].filename, "..");
+    directory[1].size = directorySize; 
+    directory[1].blockLocation = 1; 
+    directory[1].dateCreated = time(NULL);
+    directory[1].lastAccessed = time(NULL);
+    directory[1].lastModified = time(NULL);
 
 }
