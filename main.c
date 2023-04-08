@@ -6,6 +6,7 @@
 
 #define BLOCK_SIZE 512
 #define MAGIC_NUM 0x12345678
+#define STORAGE_CAPACITY (10* 1024 * 1024) // 10MB in bytes
 
 typedef struct Entry {
     char filename[256]; 
@@ -33,36 +34,59 @@ typedef struct FreeSpace {
 
 // setting global variable delcarations 
 VolumeControlBlock vcb; // using to store info about the VCB's
-FreeSpace* getFreeSpace = NULL; // using to store info about free blocks.. setting to null bc list is empty.
+FreeSpace* get_free_space = NULL; // using to store info about free blocks.. setting to null bc list is empty.
 
 // initializing values in the vcb
 void initializeVCB() {
     vcb.magicNum = MAGIC_NUM; 
-    vcb.totalBlocks = 10000; // random number of total blocks
+    vcb.totalBlocks = STORAGE_CAPACITY / BLOCK_SIZE; // 20480 blocks
     vcb.blockSize = BLOCK_SIZE; 
-    vcb.free_blocks = 3; // random number of free space starting at block 3
+    vcb.free_blocks = 6; // setting the starting block number to 6 since 1-5 are reserved in the VCB
     vcb.root_directory = 33; // root directory starts from block 33
 }
 
+// creating a global variable for the nodes of the free space linked list.
+FreeSpace* free_space_node = NULL;
+
 // initializing free space 
 void initializeFreeSpace(){
-    //assuming we are using a bitmap
-    //assuming the default size will have 19531 blocks,
-    //so we need 19531 bits or 2442 bytes or 5 blocks
-    
-    char *free_space_pointer;
-    //this holds 2560 bytes
-    free_space_pointer = malloc(BLOCK_SIZE * 5);
-    //set first 6 bits to used/1 and mark the rest as free/0
-    
-    //This is wrong?... might need to create new struct for bitmap,
-    //along with helper functions to set everything
-    //memset(free_space_pointer, '1', 6);   
-    //printf("After bit change: %d \n", free_space_pointer);
+    int totalBlocks = vcb.totalBlocks;
+    int first_free_block = 6; // setting the first free space in linked list
 
+    printf("default size (total blocks): %d\n", totalBlocks); // creating a print statement to show a starting block number for free space
+
+    FreeSpace* current = NULL; // creating and initializing free space linked list
+
+    for (int i = first_free_block; i < totalBlocks; i++) {
+        // first need to allocate memory for free space
+        FreeSpace* new_block = (FreeSpace*)malloc(sizeof(FreeSpace));
+        if (new_block == NULL) {
+            printf("error allocating memory for free space block %d\n", i);
+            break;
+        }
+
+    // setting the block number and initializing the next pointer 
+    (*new_block).blockNumber = i;
+    (*new_block).next = NULL;
+    
+    // if first node, then set as the start of linked list, 
+    // if not, then add to the end of the linked list
+    if (free_space_node == NULL) {
+        free_space_node = new_block;
+    }
+        else {
+            (*current).next = new_block;
+        }
+
+
+    // update current node
+    current = new_block;
+    }
+
+    vcb.free_blocks = first_free_block;
+    printf("setting the starting block number of the free space list in the VCB: %d\n", first_free_block);
+    printf("free space starts at block: %d\n", free_space_node->blockNumber);
 }
-
-
 
 
 // initialize root directory 
@@ -95,7 +119,6 @@ void initFileSystem() {
    
 }
 
-// allocation of free space 
 
 
 int main() {
