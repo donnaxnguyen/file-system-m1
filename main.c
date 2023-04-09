@@ -86,10 +86,6 @@ void initializeFreeSpace(){
     printf("free space starts at block: %d\n", free_space_node->blockNumber);
 }
 
-
-// initialize root directory 
-
-
 // initializing file system 
 void initFileSystem() {
     // malloc a block of memory 
@@ -111,13 +107,8 @@ void initFileSystem() {
     // if doesnt match, format the volume
     initializeVCB();
     initializeFreeSpace();
-    }
-    
-
-   
+    }  
 }
-
-
 
 int main() {
     int entrySize = sizeof(Entry); //size of our Entry struct
@@ -127,10 +118,18 @@ int main() {
     int directorySize = entries * entrySize; 
     printf("directory size: %d\n", directorySize);
 
-    Entry* directory = (Entry*) malloc(entries * directorySize);
+    // calculating how many blocks we need for directory 
+    int blocks = (directorySize + BLOCK_SIZE - 1) / BLOCK_SIZE;
+
+    // calculating the actual directory size
+    int actual_size = blocks * BLOCK_SIZE;
+
+    // recalculate the no. of entries that can fit in the actual size of the directory 
+    int actual_entries = actual_size / entrySize;
+
+    // this will allocate memory for array of 'entry' structure with the size calculated of actual number of entry
+    Entry* directory = (Entry*) malloc(actual_entries * directorySize);
    
-    //calculate how many blocks we need for the directory 
-    int blocks = directorySize / BLOCK_SIZE;
     //prints out 33 blocks, when calculated it's 33.75...
     printf("number of blocks: %d\n", blocks); 
 
@@ -144,16 +143,6 @@ int main() {
         directory[i].lastModified = time(NULL);
     }
 
-    /* 
-        Things left to do 
-        
-        - set the first entry to "." directory
-        - set the second entry to ".." directory 
-
-        - write the directory to disk? 
-
-        - return starting block number of the root directory (this is what we get when we ask free space for the blocks?)
-    */
     initFileSystem();
 
     //initialize first directory entry to "."
@@ -172,4 +161,22 @@ int main() {
     directory[1].lastAccessed = time(NULL);
     directory[1].lastModified = time(NULL);
 
+    // allocating root directory starting from the block that was returned by free space allocation
+    vcb.root_directory = (*free_space_node).blockNumber;
+    printf("root directory starting block: %d\n", vcb.root_directory);
+
+    // allocating the blocks for the root directory
+    FreeSpace *current_block = free_space_node;
+    for (int i = 0; i < 6; i++) {
+    if (current_block == NULL) {
+        printf("error: not enough free blocks for root directory.\n");
+        break;
+    }
+
+    // updating the free space list and the VCB
+    free_space_node = current_block->next;
+    vcb.free_blocks = free_space_node->blockNumber;
+    current_block = free_space_node;
+}
+    free(directory);
 }
